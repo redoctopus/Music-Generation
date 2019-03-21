@@ -27,9 +27,10 @@ def process_original_data(save_small=False):
             np.save(small_file, data[:100])
 
 def read_small():
-    filepath = 'small_tracks.npy'
+    filepath = 'small_data.npy'
     data = np.load(filepath)
     print(data.shape)
+    return data
         
 
 if __name__ == '__main__':
