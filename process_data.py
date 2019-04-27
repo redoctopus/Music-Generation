@@ -6,7 +6,6 @@ small_file = 'small_data.npy'
 
 def process_original_data(save_small=False):
     # shape = [n, #bars, #timesteps/bar, #pitches, #tracks]
-    # Want:   [n, #bars * #tracks, #timesteps/bar, #pitches]
 
     with np.load(large_file) as loaded:
         shape = loaded['shape']
