@@ -8,13 +8,14 @@ import time
 from process_data import read_small
 
 num_bars = 4
-num_timesteps = 48
+num_timesteps = 8
+#num_timesteps = 48
 num_pitches = 84
 num_tracks = 2
 
 batch_size = 1000
 epochs = 50
-seq_len = 4
+seq_len = 8
 hidden_size = 256
 
 def combine_melody_accomp(tensors, batch_size=batch_size):
@@ -33,6 +34,7 @@ def build_generator():
                             accomp_lstm -> accomp_inter -> accomp_out
     """
     # Input is [batch_size x num_pitches]
+    #inp = Input(shape=(seq_len, num_pitches), batch_size=batch_size)
     inp = Input(shape=(seq_len, num_pitches), batch_size=batch_size)
 
     melody_lstm = LSTM(
@@ -71,8 +73,7 @@ def run_generator(model, s):
     
 
 if __name__ == '__main__':
-    #data = read_small()
-    data = np.load('full_data.npy')
+    data = np.load('full_data_sub.npy')
     print("Data shape:")
     print(data.shape)
     data = np.reshape(
@@ -108,11 +109,10 @@ if __name__ == '__main__':
         # Generate some music and save it
         notes = run_generator(model, data[:batch_size, :seq_len, :, 0])
         with tf.Session().as_default():
-            print("max/min before rounding")
-            print(np.max(notes))
-            print(np.min(notes))
             notes = np.round(notes)
-            print("max/min")
+            print("melody/accomp")
+            print(np.sum(notes[:,:,:,0]))
+            print(np.sum(notes[:,:,:,1]))
             notes = np.concatenate(
                     [data[:batch_size, :seq_len, :,:], notes], axis=1)
             np.save('results/notes_'+str(e)+'.npy', notes)

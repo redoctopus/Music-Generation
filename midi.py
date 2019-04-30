@@ -41,14 +41,16 @@ def save_pianoroll(filename, pianoroll, programs, is_drums, tempo,
     multitrack.write(filename)
 
 def save_midi(infile, outfile):
-    array = np.asarray(list(map(bool, np.load(infile).flatten()))).reshape((-1,4,48,84,2))
+    array = np.asarray(list(map(bool, np.load(infile).flatten()))).reshape((-1,4,8,84,2))
+    #array = np.asarray(list(map(bool, np.load(infile).flatten()))).reshape((-1,4,48,84,2))
     save_pianoroll(
         outfile, # filename
         array, # notes
         [33, 48], # programs
         [False, False], #is_drums
         100, #tempo
-        12, #beat_resolution
+        2, #beat_resolution
+        #12, #beat_resolution
         24) #lowest pitch
 
 def main(argv):

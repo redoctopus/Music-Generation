@@ -30,7 +30,16 @@ def read_small():
     data = np.load(filepath)
     print(data.shape)
     return data
+
+def subsample():
+    data = np.load('full_data.npy')
+    data = data[:,:,0::6]
+    print(data.shape)
+
+    np.save('full_data_sub.npy', data)
+    np.save('small_data_sub.npy', data[:100])
         
 
 if __name__ == '__main__':
-    process_original_data(save_small=True)
+    #process_original_data(save_small=True)
+    subsample()
