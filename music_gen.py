@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.contrib import rnn
-from tensorflow.keras.layers import LSTM, Dense, Input, Lambda, Concatenate, Dot
+from tensorflow.keras.layers import LSTM, GRU, Dense, Input, Lambda, Concatenate
 from tensorflow.keras.models import Model
 import time
 
@@ -107,9 +107,10 @@ if __name__ == '__main__':
             if b >= train_size: break
 
             print("Starting "+str(a)+" to "+str(b))
-            model.reset_states()
+            #model.reset_states()
             # For each batch, train on predicting next time step
             for t in range(num_bars * num_timesteps - seq_len - 1):
+                model.reset_states()
                 x1 = data[a:b, t:t+seq_len, 0]
                 x2 = data[a:b, t:t+seq_len, 1]
                 y = np.reshape(
