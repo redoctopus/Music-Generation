@@ -12,8 +12,8 @@ num_timesteps = 48
 num_pitches = 84
 num_tracks = 2
 
-batch_size = 5000
-epochs = 5
+batch_size = 1000
+epochs = 50
 seq_len = 4
 hidden_size = 256
 
@@ -50,30 +50,23 @@ def build_generator():
 
     return Model(inp, out)
 
-def run_generator(model, s=None):
+def run_generator(model, s):
     """
     Runs the generator for num_bars * num_timesteps steps, and returns 
     the full sequence of generated notes.
     """
-    # Create seed values
-    if s == None:
-        s = tf.convert_to_tensor(
-                np.random.uniform(-1,1, size=(batch_size, seq_len, num_pitches))
-                .astype(np.float32))
     notes = []
 
     model.reset_states()
-
-    for i in range(num_bars * num_timesteps):
-        preds = model(s)
+    
+    for i in range(num_bars * num_timesteps - seq_len):
+        preds = model.predict(s, steps=1)
 
         notes.append(preds)
         melody_preds = tf.reshape(preds[:,:,0], (batch_size, 1, num_pitches))
-        s = tf.concat((s, melody_preds), axis=1)[:, 1:]
+        s = tf.concat((s[:,1:], melody_preds), axis=1)
 
-    notes = tf.stack(notes, axis=1)
-    print("Final notes:")
-    print(notes.shape)
+    notes = np.stack(notes, axis=1)
     return notes
     
 
@@ -93,20 +86,33 @@ if __name__ == '__main__':
 
     # Train model
     for e in range(epochs):
+        print("Epoch "+str(e))
         perm = np.random.permutation(train_size)
         data = data[perm]
 
         for batch in range(0, train_size, batch_size):
             a = batch
             b = batch + batch_size
+            if b >= train_size: break
+
+            print("Starting "+str(a)+" to "+str(b))
             model.reset_states()
             # For each batch, train on predicting next time step
             for t in range(num_bars * num_timesteps - seq_len - 1):
                 x = data[a:b, t:t+seq_len, :, 0]
                 y = data[a:b, t+seq_len, :]
-                loss = model.fit(x, y, batch_size=batch_size)
+                loss = model.fit(x, y, batch_size=(b-a))
+        
+        model.save('results/hierarchical_gen_model.h5')
 
-        model.save('hierarchical_gen_model.h5')
-
-    notes = run_generator(model, s=data[:batch_size, :seq_len, :, 0])
-    np.save('notes.npy', notes)
+        # Generate some music and save it
+        notes = run_generator(model, data[:batch_size, :seq_len, :, 0])
+        with tf.Session().as_default():
+            print("max/min before rounding")
+            print(np.max(notes))
+            print(np.min(notes))
+            notes = np.round(notes)
+            print("max/min")
+            notes = np.concatenate(
+                    [data[:batch_size, :seq_len, :,:], notes], axis=1)
+            np.save('results/notes_'+str(e)+'.npy', notes)
