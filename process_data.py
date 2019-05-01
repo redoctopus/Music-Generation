@@ -18,7 +18,7 @@ def process_original_data(save_small=False):
 
         # Cut to two tracks
         stime = time.time()
-        data = data[:, :, :, :, 3:]
+        data = data[:, :, :, :, 1::3]
 
         np.save('full_data.npy', data)
 
@@ -41,5 +41,5 @@ def subsample():
         
 
 if __name__ == '__main__':
-    #process_original_data(save_small=True)
+    process_original_data(save_small=True)
     subsample()

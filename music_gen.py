@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.contrib import rnn
-from tensorflow.keras.layers import LSTM, GRU, Dense, Input, Lambda, Concatenate
+from tensorflow.keras.layers import LSTM, GRU, Dense, Input, Lambda, Concatenate, LeakyReLU
 from tensorflow.keras.models import Model
 import time
 
@@ -16,7 +16,7 @@ num_tracks = 2
 batch_size = 1000
 epochs = 50
 seq_len = 4
-hidden_size = 256
+hidden_size = 32
 
 def combine_melody_accomp(tensors, batch_size=batch_size):
     """Helper function to combine melody and accomp tensors."""
@@ -42,12 +42,14 @@ def build_generator():
     accomp_lstm = LSTM(
             num_pitches, return_sequences=True, stateful=True)(melody_lstm)
 
-    melody_inter = LSTM(32)(melody_lstm)
+    melody_inter = LSTM(hidden_size)(melody_lstm)
     concat = Concatenate(axis=-1)([accomp_lstm, inp_acc])
-    accomp_inter = LSTM(32)(concat)
+    accomp_inter = LSTM(hidden_size)(concat)
 
-    melody_out = Dense(num_pitches, activation='softmax')(melody_inter)
-    accomp_out = Dense(num_pitches, activation='linear')(accomp_inter)
+    melody_out = Dense(num_pitches, activation='sigmoid')(melody_inter)
+    accomp_out = Dense(num_pitches, activation='sigmoid')(accomp_inter)
+    #melody_out = Dense(num_pitches, activation='linear')(melody_out)
+    #accomp_out = Dense(num_pitches, activation='linear')(accomp_out)
 
     out = Concatenate(axis=-1)([melody_out, accomp_out])
     print("Model output shape")
@@ -93,7 +95,8 @@ if __name__ == '__main__':
     train_size = data.shape[0]
 
     model = build_generator()
-    model.compile(loss='mse', optimizer='rmsprop')
+    model.compile(loss='binary_crossentropy', optimizer='adam')
+    #model.compile(loss='mse', optimizer='rmsprop')
 
     # Train model
     for e in range(epochs):
@@ -107,16 +110,28 @@ if __name__ == '__main__':
             if b >= train_size: break
 
             print("Starting "+str(a)+" to "+str(b))
-            #model.reset_states()
             # For each batch, train on predicting next time step
+            training_sets = []
             for t in range(num_bars * num_timesteps - seq_len - 1):
-                model.reset_states()
                 x1 = data[a:b, t:t+seq_len, 0]
                 x2 = data[a:b, t:t+seq_len, 1]
                 y = np.reshape(
                         data[a:b, t+seq_len, :],
                         (-1, num_tracks * num_pitches))
+                """
+                # Check for "repeat notes"
+                repeats =  x1[:,-1] ^ data[a:b, t+seq_len, 0]
+                repeats = np.sum(repeats, axis=-1)
+                repeats = np.count_nonzero(repeats)
+                # Skip this training set if >1/2 are repeats
+                if repeats/batch_size > 0.5:
+                    continue
+                """
+                training_sets.append((x1, x2, y))
+            for i in np.random.permutation(num_bars*num_timesteps-seq_len-1):
+                x1, x2, y = training_sets[i]
                 loss = model.fit([x1, x2], y, batch_size=(b-a))
+                model.reset_states()
 
         model.save('results/hierarchical_gen_model.h5')
 
