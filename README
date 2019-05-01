@@ -3,14 +3,7 @@ Music Generation
 
 Group Members: Daniel Martin, Menglan Ji, Jocelyn Huang
 
-Trying to produce two-track, polyphonic music using a GAN.
-The architecture involves a hierarchical sequence generator (LSTM), and 
-a discriminator that takes in the tracks as well as a few other metrics.
-
-
-Things to Try (If Time Allows):
-  - Varying seq_len for generator
-  - Different methods of binarizing generator output
+Trying to produce two-track, polyphonic music using a hierarchical LSTM.
 
 Notes:
 1. Doesn't get to learn overarching structure. Just tries to riff on prev notes
