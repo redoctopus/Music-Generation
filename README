@@ -11,3 +11,17 @@ a discriminator that takes in the tracks as well as a few other metrics.
 Things to Try (If Time Allows):
   - Varying seq_len for generator
   - Different methods of binarizing generator output
+
+Notes:
+1. Doesn't get to learn overarching structure. Just tries to riff on prev notes
+2. Tendencey to repeat the previous note, because that's right most of the time
+3. Don't have a good representation of notes together, they're treated indep.
+4. With softmax + binary crossent, does quite well in figuring out chord combos.
+5. Tends to harmonize between parts reasonably, too, with sync and note matches.
+6. At 30 iterations, learns that it doesn't have to hold notes
+7. Harmonizes very well by 30-40 epochs, learns some ascending + descending,
+   note alternating, up+down structures (67 in epoch 40).
+8. Learns to not have too many odd pauses by 30-40.
+9. By 20ish, learns to choose next notes that are connected to prev in some way.
+10. 30 iterations seems to have the most variety and still have structure
+11. 1st epoch ignores accompaniment and just holds the melody note for the most part.
