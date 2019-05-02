@@ -34,24 +34,28 @@ def build_generator():
                             accomp_lstm -> accomp_inter -> accomp_out
     """
     # Input is [batch_size x num_pitches]
-    inp_mel = Input(shape=(seq_len, num_pitches), batch_size=batch_size)
-    inp_acc = Input(shape=(seq_len, num_pitches), batch_size=batch_size)
+    inp_mel = Input(
+            shape=(seq_len, num_pitches), batch_size=batch_size,
+            name'melody_input')
+    inp_acc = Input(
+            shape=(seq_len, num_pitches), batch_size=batch_size,
+            name='accomp_input')
 
     melody_lstm = LSTM(
-            num_pitches, return_sequences=True, stateful=True)(inp_mel)
+            num_pitches, return_sequences=True, stateful=True,
+            name="melody_lstm1")(inp_mel)
     accomp_lstm = LSTM(
-            num_pitches, return_sequences=True, stateful=True)(melody_lstm)
+            num_pitches, return_sequences=True, stateful=True,
+            name="accomp_lstm1")(melody_lstm)
 
-    melody_inter = LSTM(hidden_size)(melody_lstm)
+    melody_inter = LSTM(hidden_size, name="melody_lstm2")(melody_lstm)
     concat = Concatenate(axis=-1)([accomp_lstm, inp_acc])
-    accomp_inter = LSTM(hidden_size)(concat)
+    accomp_inter = LSTM(hidden_size, name="accomp_lstm2")(concat)
 
     melody_out = Dense(num_pitches, activation='sigmoid')(melody_inter)
     accomp_out = Dense(num_pitches, activation='sigmoid')(accomp_inter)
-    #melody_out = Dense(num_pitches, activation='linear')(melody_out)
-    #accomp_out = Dense(num_pitches, activation='linear')(accomp_out)
 
-    out = Concatenate(axis=-1)([melody_out, accomp_out])
+    out = Concatenate(axis=-1, name='output')([melody_out, accomp_out])
     print("Model output shape")
     print(out.shape)
 
