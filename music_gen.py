@@ -9,7 +9,7 @@ from process_data import read_small
 
 num_bars = 4
 num_timesteps = 8
-#num_timesteps = 48
+#num_timesteps = 48 # Originally 48, now subsampled
 num_pitches = 84
 num_tracks = 2
 
@@ -100,7 +100,6 @@ if __name__ == '__main__':
 
     model = build_generator()
     model.compile(loss='binary_crossentropy', optimizer='adam')
-    #model.compile(loss='mse', optimizer='rmsprop')
 
     # Train model
     for e in range(epochs):

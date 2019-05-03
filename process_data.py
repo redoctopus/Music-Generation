@@ -16,7 +16,7 @@ def process_original_data(save_small=False):
         data[[x for x in loaded['nonzero']]] = True
         print("Time taken to load: %s" % (time.time()-stime))
 
-        # Cut to two tracks
+        # Cut to two tracks (piano and strings)
         stime = time.time()
         data = data[:, :, :, :, 1::3]
 
