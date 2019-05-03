@@ -1,20 +1,11 @@
-Music Generation
+Music Generation: DuetHLSTM
 10-707 Final Project
 
-Group Members: Daniel Martin, Menglan Ji, Jocelyn Huang
+Jocelyn Huang, Menglan Ji, Daniel Martin
 
-Trying to produce two-track, polyphonic music using a hierarchical LSTM.
+DuetHLSTM is a model that generates two-track, polyphonic music using a hierarchical LSTM.
+You can find the training data here: https://salu133445.github.io/lakh-pianoroll-dataset/
 
-Notes:
-1. Doesn't get to learn overarching structure. Just tries to riff on prev notes
-2. Tendencey to repeat the previous note, because that's right most of the time
-3. Don't have a good representation of notes together, they're treated indep.
-4. With softmax + binary crossent, does quite well in figuring out chord combos.
-5. Tends to harmonize between parts reasonably, too, with sync and note matches.
-6. At 30 iterations, learns that it doesn't have to hold notes
-7. Harmonizes very well by 30-40 epochs, learns some ascending + descending,
-   note alternating, up+down structures (67 in epoch 40).
-8. Learns to not have too many odd pauses by 30-40.
-9. By 20ish, learns to choose next notes that are connected to prev in some way.
-10. 30 iterations seems to have the most variety and still have structure
-11. 1st epoch ignores accompaniment and just holds the melody note for the most part.
+To train, run process_data.py on the training data, then run music_gen.py.
+This will output a set of samples at every epoch in .npy format, which can be converted to MIDI files using midi.py.
+To evaluate using objective metrics, run metrics.py on the .npy samples.
