@@ -46,7 +46,7 @@ def save_midi(infile, outfile):
     save_pianoroll(
         outfile, # filename
         array, # notes
-        [33, 48], # programs
+        [0, 48], # programs
         [False, False], #is_drums
         100, #tempo
         2, #beat_resolution
