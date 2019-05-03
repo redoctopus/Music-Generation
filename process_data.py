@@ -1,7 +1,7 @@
 import numpy as np
 import time
 
-large_file = '../musegan/data/train_x_lpd_5_phr.npz'
+large_file = 'train_x_lpd_5_phr.npz'
 small_file = 'small_data.npy'
 
 def process_original_data(save_small=False):
@@ -38,7 +38,7 @@ def subsample():
 
     np.save('full_data_sub.npy', data)
     np.save('small_data_sub.npy', data[:100])
-        
+
 
 if __name__ == '__main__':
     process_original_data(save_small=True)
